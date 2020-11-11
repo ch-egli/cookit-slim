@@ -1,0 +1,11 @@
+{
+    "require": {
+        "slim/slim": "4.*",
+        "slim/psr7": "^1.2",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-fileinfo": "*",
+        "google/apiclient": "^2.8",
+        "vlucas/phpdotenv": "^5.2"
+    }
+}
