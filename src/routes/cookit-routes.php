@@ -83,6 +83,8 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
 /**
  * Add or update a new recipe
  * Attention: we cannot use put since Content-Type "form-data" is not supported => getParsedBody always returns null!
+ *
+ * For requests use: Content-Type: multipart/form-data
  */
 $app->post('/api/recipes', function( Request $request, Response $response){
     $headerValueArray = $request->getHeader('Authorization');
