@@ -8,8 +8,10 @@ require __DIR__ . '/../src/config/DotEnv.php';
 require '../src/config/Database.php';
 
 $app = AppFactory::create();
+$app->addBodyParsingMiddleware();
 
 // # include cookit routes
+require '../src/repo/RecipeRepo.php';
 require '../src/helper/Authentication.php';
 require '../src/helper/JsonResponse.php';
 require '../src/routes/cookit-routes.php';
