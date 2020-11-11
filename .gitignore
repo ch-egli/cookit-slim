@@ -9,3 +9,5 @@
 /.env
 /.scannerwork/
 /.phpunit.result.cache
+/.idea
+/readme.md
