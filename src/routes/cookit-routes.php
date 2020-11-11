@@ -41,7 +41,7 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
     }
 
     $recipeId = $request->getAttribute('id');
-    $sql = "SELECT id, title, description, tags, image1, image2, image3, created_at, updated_at FROM recipes WHERE id=".$recipeId;
+    $sql = "SELECT id, title, description, tags, image1, image2, image3, created_at, updated_at FROM recipes WHERE id=" . $recipeId;
 
     try {
         $db = new Database();
@@ -81,7 +81,8 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
 });
 
 /**
- * Add new recipe
+ * Add or update a new recipe
+ * Attention: we cannot use put since Content-Type "form-data" is not supported => getParsedBody always returns null!
  */
 $app->post('/api/recipes', function( Request $request, Response $response){
     $headerValueArray = $request->getHeader('Authorization');
@@ -90,9 +91,14 @@ $app->post('/api/recipes', function( Request $request, Response $response){
         return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
     }
 
-    $array = $request->getParsedBody();
-    $parsedBody = implode(',', $array);
+    $bodyParams = $request->getParsedBody();
+    // $parsedBody = implode(',', $array);
     // echo "parsedBody: $parsedBody \n";
+
+    $recipeId = $bodyParams['id'];
+    $title = $bodyParams['title'];
+    $description = $bodyParams['description'];
+    $tags = $bodyParams['tags'];
 
     $uploadedFiles = $request->getUploadedFiles();
     $fileCount = count($uploadedFiles);
@@ -124,34 +130,21 @@ $app->post('/api/recipes', function( Request $request, Response $response){
     // echo "uploadedFiles: $filename1 $filename2 $filename3 ";
     // echo "$stream: $stream";
 
-    $title = $array['title'];
-    $description = $array['description'];
-    $tags = $array['tags'];
-
-    $sql = "INSERT INTO recipes (title, description, tags, image1, image2, image3, created_at, updated_at) 
-            VALUES(:title, :description, :tags, :image1, :image2, :image3, NOW(), NOW())";
-
-    // echo "sql: $sql \n";
-
-    try {
-        $db = new Database();
-        $db = $db->connect();
-        $stmt = $db->prepare( $sql );
-
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':tags', $tags);
-        $stmt->bindParam(':image1', $stream1);
-        $stmt->bindParam(':image2', $stream2);
-        $stmt->bindParam(':image3', $stream3);
-
-        $stmt->execute();
-
-        $successMsg = (object) ['success' => "new recipe added"];
+    $repo = new RecipeRepo();
+    if (!empty($recipeId)) {
+        $updateResult = $repo->update($recipeId, $title, $description, $tags, $stream1, $stream2, $stream3);
+        if (!empty($updateResult)) {
+            return JsonResponse::withJson($response, json_encode((object) ['error' => $updateResult]), 400);
+        }
+        $successMsg = (object) ['success' => "recipe successfully updated"];
+        return JsonResponse::withJson($response, json_encode($successMsg), 200);
+    } else {
+        $insertResult = $repo->insert($title, $description, $tags, $stream1, $stream2, $stream3);
+        if (!empty($insertResult)) {
+            return JsonResponse::withJson($response, json_encode((object) ['error' => $insertResult]), 400);
+        }
+        $successMsg = (object) ['success' => "recipe successfully added"];
         return JsonResponse::withJson($response, json_encode($successMsg), 201);
-    } catch( PDOException $e ) {
-        $errorMsg = (object) ['error' => $e->getMessage()];
-        return JsonResponse::withJson($response, json_encode($errorMsg), 500);
     }
 });
 
