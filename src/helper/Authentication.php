@@ -5,7 +5,7 @@ declare(strict_types=1);
 final class Authentication
 {
     const GOOGLE_CLIENT_DI = '288131662449-77rbf5afprn0u7nugord6k8hr7p63tjm.apps.googleusercontent.com';
-    const IS_AUTH_ENABLED = true;
+    const IS_AUTH_ENABLED = false;
     const USE_DATABASE = true;
     const COOKIT_USERS = array(
         "christian.egli4@gmail.com",

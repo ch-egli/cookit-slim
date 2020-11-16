@@ -14,7 +14,16 @@ $app->get('/api/recipes', function( Request $request, Response $response){
         return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
     }
 
-    $sql = "SELECT id, title, description, tags, created_at, updated_at FROM recipes";
+    $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
+            FROM recipes r
+                LEFT JOIN tags t ON r.id = t.recipe_id
+            WHERE r.title LIKE '%'
+              AND r.description LIKE '%'
+              AND r.category LIKE '%'
+              AND r.effort LIKE '%'
+              AND (t.name LIKE '%' OR t.name is null)
+            GROUP BY r.id";
+
     try {
         $db = new Database();
         $db = $db->connect();
@@ -41,7 +50,16 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
     }
 
     $recipeId = $request->getAttribute('id');
-    $sql = "SELECT id, title, description, tags, image1, image2, image3, created_at, updated_at FROM recipes WHERE id=" . $recipeId;
+    $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
+            FROM recipes r
+                LEFT JOIN tags t ON r.id = t.recipe_id
+            WHERE r.title LIKE '%'
+            AND r.description LIKE '%'
+            AND r.category LIKE '%'
+            AND r.effort LIKE '%'
+            AND (t.name LIKE '%' OR t.name is null)
+            AND r.id = $recipeId
+            GROUP BY r.id";
 
     try {
         $db = new Database();
@@ -64,6 +82,8 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
                 'id' => $rp->id,
                 'title' => $rp->title,
                 'description' => $rp->description,
+                'category' => $rp->category,
+                'effort' => $rp->effort,
                 'tags' => $rp->tags,
                 'image1' => $rp->image1 == null ? null : 'available',
                 'image2' => $rp->image2 == null ? null : 'available',
@@ -100,6 +120,8 @@ $app->post('/api/recipes', function( Request $request, Response $response){
     $recipeId = $bodyParams['id'];
     $title = $bodyParams['title'];
     $description = $bodyParams['description'];
+    $category = $bodyParams['category'];
+    $effort = $bodyParams['effort'];
     $tags = $bodyParams['tags'];
 
     $uploadedFiles = $request->getUploadedFiles();
@@ -134,14 +156,14 @@ $app->post('/api/recipes', function( Request $request, Response $response){
 
     $repo = new RecipeRepo();
     if (!empty($recipeId)) {
-        $updateResult = $repo->update($recipeId, $title, $description, $tags, $stream1, $stream2, $stream3);
+        $updateResult = $repo->update($recipeId, $title, $description, $category, $effort, $tags, $stream1, $stream2, $stream3);
         if (!empty($updateResult)) {
             return JsonResponse::withJson($response, json_encode((object) ['error' => $updateResult]), 400);
         }
         $successMsg = (object) ['success' => "recipe successfully updated"];
         return JsonResponse::withJson($response, json_encode($successMsg), 200);
     } else {
-        $insertResult = $repo->insert($title, $description, $tags, $stream1, $stream2, $stream3);
+        $insertResult = $repo->insert($title, $description, $category, $effort, $tags, $stream1, $stream2, $stream3);
         if (!empty($insertResult)) {
             return JsonResponse::withJson($response, json_encode((object) ['error' => $insertResult]), 400);
         }
