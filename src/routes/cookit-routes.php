@@ -252,9 +252,9 @@ $app->get('/api/categories', function( Request $request, Response $response){
 });
 
 /**
- * GET effort
+ * GET effort-values
  */
-$app->get('/api/efforts', function( Request $request, Response $response){
+$app->get('/api/effort-values', function( Request $request, Response $response){
     $headerValueArray = $request->getHeader('Authorization');
     $authResult = Authentication::authenticate($headerValueArray);
     if (!empty($authResult)) {
