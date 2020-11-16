@@ -31,6 +31,7 @@ INSERT INTO recipes (title, description, category, effort, created_at, updated_a
 
 SELECT DISTINCT effort FROM recipes ORDER BY effort ASC;
 SELECT DISTINCT category FROM recipes ORDER BY category ASC;
+SELECT DISTINCT name FROM tags ORDER BY name ASC;
 
 SELECT id, title, description, category, effort, created_at, updated_at FROM recipes WHERE id=1;
 SELECT id, title, description, category, effort, created_at, updated_at FROM recipes WHERE title LIKE '%reci%';

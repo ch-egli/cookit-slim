@@ -222,3 +222,65 @@ $app->get('/api/recipes/{id}/img/{image}', function (Request $request, Response 
     $response = $response->withStatus(200)->withHeader('Content-Type', $mime);
     return $response->withBody((new StreamFactory())->createStream($image));
 });
+
+/**
+ * GET tags
+ */
+$app->get('/api/tags', function( Request $request, Response $response){
+    $headerValueArray = $request->getHeader('Authorization');
+    $authResult = Authentication::authenticate($headerValueArray);
+    if (!empty($authResult)) {
+        return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
+    }
+
+    $sql = "SELECT DISTINCT name FROM tags ORDER BY name ASC";
+    return executeQuery($response, $sql, "name");
+});
+
+/**
+ * GET categories
+ */
+$app->get('/api/categories', function( Request $request, Response $response){
+    $headerValueArray = $request->getHeader('Authorization');
+    $authResult = Authentication::authenticate($headerValueArray);
+    if (!empty($authResult)) {
+        return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
+    }
+
+    $sql = "SELECT DISTINCT category FROM recipes ORDER BY category ASC";
+    return executeQuery($response, $sql, "category");
+});
+
+/**
+ * GET effort
+ */
+$app->get('/api/efforts', function( Request $request, Response $response){
+    $headerValueArray = $request->getHeader('Authorization');
+    $authResult = Authentication::authenticate($headerValueArray);
+    if (!empty($authResult)) {
+        return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
+    }
+
+    $sql = "SELECT DISTINCT effort FROM recipes ORDER BY effort ASC";
+    return executeQuery($response, $sql, "effort");
+});
+
+function executeQuery(Response $response, string $sql, string $field): Response {
+    try {
+        $db = new Database();
+        $db = $db->connect();
+
+        $stmt = $db->query( $sql );
+        $fetchedObjects = $stmt->fetchAll( PDO::FETCH_OBJ );
+        $db = null; // clear db object
+
+        $result = array();
+        foreach ($fetchedObjects as $value) {
+            array_push($result, (string) $value->$field);
+        }
+        return JsonResponse::withJson($response, json_encode($result), 200);
+    } catch( PDOException $e ) {
+        $errorMsg = (object) ['error' => $e->getMessage()];
+        return JsonResponse::withJson($response, json_encode($errorMsg), 500);
+    }
+}
