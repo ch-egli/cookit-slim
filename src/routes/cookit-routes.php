@@ -14,14 +14,21 @@ $app->get('/api/recipes', function( Request $request, Response $response){
         return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
     }
 
+    $queryParams = $request->getQueryParams();
+    $titleFilterStr = assembleContainsQueryFor($queryParams, "title");
+    $descrFilterStr = assembleContainsQueryFor($queryParams, "descr");
+    $categoryFilterStr = assembleEqualsQueryFor($queryParams, "category");
+    $effortFilterStr = assembleEqualsQueryFor($queryParams, "effort");
+    $tagsFilterStr = assembleTagsQuery($queryParams);
+
     $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
-            WHERE r.title LIKE '%'
-              AND r.description LIKE '%'
-              AND r.category LIKE '%'
-              AND r.effort LIKE '%'
-              AND (t.name LIKE '%' OR t.name is null)
+            WHERE r.title LIKE $titleFilterStr
+              AND r.description LIKE $descrFilterStr
+              AND r.category LIKE $categoryFilterStr
+              AND r.effort LIKE $effortFilterStr
+              AND (t.name LIKE $tagsFilterStr)
             GROUP BY r.id";
 
     try {
@@ -53,12 +60,7 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
     $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
-            WHERE r.title LIKE '%'
-            AND r.description LIKE '%'
-            AND r.category LIKE '%'
-            AND r.effort LIKE '%'
-            AND (t.name LIKE '%' OR t.name is null)
-            AND r.id = $recipeId
+            WHERE r.id = $recipeId
             GROUP BY r.id";
 
     try {
@@ -283,4 +285,31 @@ function executeQuery(Response $response, string $sql, string $field): Response 
         $errorMsg = (object) ['error' => $e->getMessage()];
         return JsonResponse::withJson($response, json_encode($errorMsg), 500);
     }
+}
+
+function assembleContainsQueryFor(array $queryParams, string $item): string {
+    $itemFilter = $queryParams[$item];
+    $itemFilterStr = "'%'";
+    if (!empty($itemFilter)) {
+        $itemFilterStr = "'%" . $itemFilter . "%'";
+    }
+    return $itemFilterStr;
+}
+
+function assembleEqualsQueryFor(array $queryParams, string $item): string {
+    $itemFilter = $queryParams[$item];
+    $itemFilterStr = "'%'";
+    if (!empty($itemFilter)) {
+        $itemFilterStr = "'" . $itemFilter . "'";
+    }
+    return $itemFilterStr;
+}
+
+function assembleTagsQuery(array $queryParams): string {
+    $itemFilter = $queryParams["tags"];
+    $itemFilterStr = "'%' OR t.name is null";
+    if (!empty($itemFilter)) {
+        $itemFilterStr = "'%" . $itemFilter . "%'";
+    }
+    return $itemFilterStr;
 }
