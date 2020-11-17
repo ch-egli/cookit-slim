@@ -226,6 +226,48 @@ $app->get('/api/recipes/{id}/img/{image}', function (Request $request, Response 
 });
 
 /**
+ * DELETE recipe
+ */
+$app->delete('/api/recipes/{id}', function( Request $request, Response $response){
+    $headerValueArray = $request->getHeader('Authorization');
+    $authResult = Authentication::authenticate($headerValueArray);
+    if (!empty($authResult)) {
+        return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
+    }
+
+    $recipeId = $request->getAttribute('id');
+    $sql = "SELECT id, title FROM recipes WHERE id = $recipeId";
+
+    try {
+        $db = new Database();
+        $db = $db->connect();
+
+        $stmt = $db->query( $sql );
+        $recipes = $stmt->fetchAll( PDO::FETCH_OBJ );
+
+        $countRecipes = count($recipes);
+        if ($countRecipes < 1) {
+            $errorMsg = (object) ['error' => 'recipe with id ' . $recipeId . ' not found'];
+            return JsonResponse::withJson($response, json_encode($errorMsg), 404);
+        } else if ($countRecipes > 1) {
+            $errorMsg = (object) ['error' => 'Found multiple recipes with id ' . $recipeId];
+            return JsonResponse::withJson($response, json_encode($errorMsg), 400);
+        } else  {
+            $stmt = $db->prepare("DELETE FROM recipes WHERE id = $recipeId");
+            $stmt->execute();
+            $stmt = $db->prepare("DELETE FROM tags WHERE recipe_id = $recipeId");
+            $stmt->execute();
+            $db = null;
+            $successMsg = (object) ['success' => "recipe successfully deleted"];
+            return JsonResponse::withJson($response, json_encode($successMsg), 200);
+        }
+    } catch( PDOException $e ) {
+        $errorMsg = (object) ['error' => $e->getMessage()];
+        return JsonResponse::withJson($response, json_encode($errorMsg), 500);
+    }
+});
+
+/**
  * GET tags
  */
 $app->get('/api/tags', function( Request $request, Response $response){
