@@ -57,7 +57,7 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
     }
 
     $recipeId = $request->getAttribute('id');
-    $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
+    $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, image1, image2, image3, r.created_at, r.updated_at
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
             WHERE r.id = $recipeId
@@ -154,7 +154,7 @@ $app->post('/api/recipes', function( Request $request, Response $response){
     }
 
     // echo "uploadedFiles: $filename1 $filename2 $filename3 ";
-    // echo "$stream: $stream";
+    // echo "stream1: $stream1";
 
     $repo = new RecipeRepo();
     if (!empty($recipeId)) {
@@ -307,6 +307,14 @@ $app->get('/api/effort-values', function( Request $request, Response $response){
 
     $sql = "SELECT DISTINCT effort FROM recipes ORDER BY effort ASC";
     return executeQuery($response, $sql, "effort");
+});
+
+/**
+ * Handle bad routes
+ */
+$app->get('/[{path:.*}]', function  (Request $request, Response $response) {
+    $errorMsg = (object) ['error' => "route not found"];
+    return JsonResponse::withJson($response, json_encode($errorMsg), 404);
 });
 
 function executeQuery(Response $response, string $sql, string $field): Response {

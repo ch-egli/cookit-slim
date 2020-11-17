@@ -10,7 +10,7 @@ class RecipeRepo
          $sql2 = "INSERT INTO tags (name, recipe_id) VALUES (:name, :recipe_id)";
          // echo "sql2: $sql2 \n";
 
-        try {
+         try {
             $db = new Database();
             $db = $db->connect();
             $db->beginTransaction();
