@@ -19,24 +19,30 @@ $app->get('/api/recipes', function( Request $request, Response $response){
     $descrFilterStr = assembleContainsQueryFor($queryParams, "descr");
     $categoryFilterStr = assembleEqualsQueryFor($queryParams, "category");
     $effortFilterStr = assembleEqualsQueryFor($queryParams, "effort");
-    $tagsFilterStr = assembleTagsQuery($queryParams);
+    $tagsFilterStr = assembleContainsQueryFor($queryParams, "tags");
 
     $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, r.created_at, r.updated_at
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
-            WHERE r.title LIKE $titleFilterStr
-              AND r.description LIKE $descrFilterStr
-              AND r.category LIKE $categoryFilterStr
-              AND r.effort LIKE $effortFilterStr
-              AND (t.name LIKE $tagsFilterStr)
+            WHERE r.title LIKE :titleFilter
+              AND IFNULL(r.description, '') LIKE :descrFilter
+              AND IFNULL(r.category, '') LIKE :categoryFilter
+              AND IFNULL(r.effort, '') LIKE :effortFilter
+              AND IFNULL(t.name, '') LIKE :tagsFilter
             GROUP BY r.id";
 
     try {
         $db = new Database();
         $db = $db->connect();
 
-        $stmt = $db->query( $sql );
-        $recipes = $stmt->fetchAll( PDO::FETCH_OBJ );
+        $query = $db->prepare( $sql );
+        $query->bindParam(':titleFilter', $titleFilterStr);
+        $query->bindParam(':descrFilter', $descrFilterStr);
+        $query->bindParam(':categoryFilter', $categoryFilterStr);
+        $query->bindParam(':effortFilter', $effortFilterStr);
+        $query->bindParam(':tagsFilter', $tagsFilterStr);
+        $query->execute();
+        $recipes = $query->fetchAll( PDO::FETCH_OBJ );
         $db = null; // clear db object
 
         return JsonResponse::withJson($response, json_encode($recipes), 200);
@@ -60,15 +66,18 @@ $app->get('/api/recipes/{id}', function( Request $request, Response $response){
     $sql = "SELECT r.id, r.title, r.description, r.category, r.effort, IFNULL(GROUP_CONCAT(t.name), '') AS tags, image1, image2, image3, r.created_at, r.updated_at
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
-            WHERE r.id = $recipeId
+            WHERE r.id = :recipe_id
             GROUP BY r.id";
 
     try {
         $db = new Database();
         $db = $db->connect();
 
-        $stmt = $db->query( $sql );
-        $recipes = $stmt->fetchAll( PDO::FETCH_OBJ );
+        $query = $db->prepare( $sql );
+        $query->bindParam(':recipe_id', $recipeId);
+        $query->execute();
+
+        $recipes = $query->fetchAll( PDO::FETCH_OBJ );
         $db = null; // clear db object
 
         $countRecipes = count($recipes);
@@ -339,18 +348,18 @@ function executeQuery(Response $response, string $sql, string $field): Response 
 
 function assembleContainsQueryFor(array $queryParams, string $item): string {
     $itemFilter = $queryParams[$item];
-    $itemFilterStr = "'%'";
+    $itemFilterStr = "%";
     if (!empty($itemFilter)) {
-        $itemFilterStr = "'%" . $itemFilter . "%'";
+        $itemFilterStr = "%" . $itemFilter . "%";
     }
     return $itemFilterStr;
 }
 
 function assembleEqualsQueryFor(array $queryParams, string $item): string {
     $itemFilter = $queryParams[$item];
-    $itemFilterStr = "'%'";
+    $itemFilterStr = "%";
     if (!empty($itemFilter)) {
-        $itemFilterStr = "'" . $itemFilter . "'";
+        $itemFilterStr = $itemFilter;
     }
     return $itemFilterStr;
 }
