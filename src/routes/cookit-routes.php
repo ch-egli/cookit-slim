@@ -198,13 +198,16 @@ $app->get('/api/recipes/{id}/img/{image}', function (Request $request, Response 
     $imgId = $request->getAttribute('image');
     $img = 'image' . $imgId;
     $recipeId = $request->getAttribute('id');
-    $sql = "SELECT ".$img." FROM recipes WHERE id=".$recipeId;
+    $sql = "SELECT ".$img." FROM recipes WHERE id = :recipe_id";
     $image = null;
     try {
         $db = new Database();
         $db = $db->connect();
-        $stmt = $db->query( $sql );
-        $images = $stmt->fetchAll( PDO::FETCH_OBJ );
+        $query = $db->prepare( $sql );
+        $query->bindParam(':recipe_id', $recipeId);
+        $query->execute();
+
+        $images = $query->fetchAll( PDO::FETCH_OBJ );
         $db = null; // clear db object
 
         // $imgCount = count($images);
@@ -245,14 +248,16 @@ $app->delete('/api/recipes/{id}', function( Request $request, Response $response
     }
 
     $recipeId = $request->getAttribute('id');
-    $sql = "SELECT id, title FROM recipes WHERE id = $recipeId";
+    $sql = "SELECT id, title FROM recipes WHERE id = :recipe_id";
 
     try {
         $db = new Database();
         $db = $db->connect();
 
-        $stmt = $db->query( $sql );
-        $recipes = $stmt->fetchAll( PDO::FETCH_OBJ );
+        $query = $db->prepare( $sql );
+        $query->bindParam(':recipe_id', $recipeId);
+        $query->execute();
+        $recipes = $query->fetchAll( PDO::FETCH_OBJ );
 
         $countRecipes = count($recipes);
         if ($countRecipes < 1) {
@@ -360,15 +365,6 @@ function assembleEqualsQueryFor(array $queryParams, string $item): string {
     $itemFilterStr = "%";
     if (!empty($itemFilter)) {
         $itemFilterStr = $itemFilter;
-    }
-    return $itemFilterStr;
-}
-
-function assembleTagsQuery(array $queryParams): string {
-    $itemFilter = $queryParams["tags"];
-    $itemFilterStr = "'%' OR t.name is null";
-    if (!empty($itemFilter)) {
-        $itemFilterStr = "'%" . $itemFilter . "%'";
     }
     return $itemFilterStr;
 }
