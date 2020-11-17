@@ -56,7 +56,7 @@ class RecipeRepo
                     image2 = :image2, 
                     image3 = :image3,
                     updated_at = NOW()
-                WHERE id=$id";
+                WHERE id = :id";
         // echo "sql: $sql \n";
 
         try {
@@ -72,9 +72,11 @@ class RecipeRepo
             $stmt->bindParam(':image1', $stream1);
             $stmt->bindParam(':image2', $stream2);
             $stmt->bindParam(':image3', $stream3);
+            $stmt->bindParam(':id', $id);
             $stmt->execute();
 
-            $stmt = $db->prepare( "DELETE FROM tags WHERE recipe_id = $id;" );
+            $stmt = $db->prepare( "DELETE FROM tags WHERE recipe_id = :id;" );
+            $stmt->bindParam(':id', $id);
             $stmt->execute();
 
             if ($tags != null) {
