@@ -25,6 +25,7 @@ $app->get('/api/recipes', function( Request $request, Response $response){
             FROM recipes r
                 LEFT JOIN tags t ON r.id = t.recipe_id
             WHERE r.title LIKE :titleFilter
+              AND r.id > 9
               AND IFNULL(r.description, '') LIKE :descrFilter
               AND IFNULL(r.category, '') LIKE :categoryFilter
               AND IFNULL(r.effort, '') LIKE :effortFilter
@@ -193,7 +194,7 @@ $app->get('/api/recipes/{id}/img/{image}', function (Request $request, Response 
     $authResult = Authentication::authenticate($headerValueArray);
     if (!empty($authResult)) {
         return JsonResponse::withJson($response, json_encode((object) ['error' => $authResult]), 401);
-    }
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 
     $imgId = $request->getAttribute('image');
     $img = 'image' . $imgId;

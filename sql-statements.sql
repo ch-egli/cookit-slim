@@ -23,11 +23,16 @@ INSERT INTO tags (name, recipe_id) VALUES ('vegetarian', 4);
 INSERT INTO tags (name, recipe_id) VALUES ('vegan', 1);
 INSERT INTO tags (name, recipe_id) VALUES ('fish', 5);
 
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-1', 'description-1', '11-starter', '3-high', NOW(), NOW());
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-2', 'description-2', '20-main', '2-medium', NOW(), NOW());
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-3', 'description-3', '30-dessert', '2-medium', NOW(), NOW());
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-4', 'description-4', '10-appetizer', '1-easy', NOW(), NOW());
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-5', 'description-5', '20-main', '2-medium', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-1', 'description-1', 'starter', 'high', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-2', 'description-2', 'main', 'medium', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-3', 'description-3', 'dessert', 'medium', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-4', 'description-4', 'appetizer', 'easy', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-5', 'description-5', 'main', 'medium', NOW(), NOW());
+
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'starter', 'low', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'appetizer', 'medium', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'main', 'high', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'dessert', NULL, NOW(), NOW());
 
 SELECT DISTINCT effort FROM recipes ORDER BY effort ASC;
 SELECT DISTINCT category FROM recipes ORDER BY category ASC;
