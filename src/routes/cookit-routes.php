@@ -31,6 +31,7 @@ $app->get('/api/recipes', function( Request $request, Response $response){
               AND IFNULL(r.effort, '') LIKE :effortFilter
               AND IFNULL(t.name, '') LIKE :tagsFilter
             GROUP BY r.id";
+    // var_dump($sql);
 
     try {
         $db = new Database();

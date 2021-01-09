@@ -1,15 +1,15 @@
 <?php
 /*
- * This is the local dev file and paths are different from the index.php in the root directory.
+ * This is the production file in the root (not public!) directory.
  */
 
 use Slim\Factory\AppFactory;
 
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../src/config/DotEnv.php';
+require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/src/config/DotEnv.php';
 
 // # include DB connection file
-require '../src/config/Database.php';
+require 'src/config/Database.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -30,9 +30,9 @@ $app->add(function ($request, $handler) {
 
 
 // # include cookit routes
-require '../src/repo/RecipeRepo.php';
-require '../src/helper/Authentication.php';
-require '../src/helper/JsonResponse.php';
-require '../src/routes/cookit-routes.php';
+require 'src/repo/RecipeRepo.php';
+require 'src/helper/Authentication.php';
+require 'src/helper/JsonResponse.php';
+require 'src/routes/cookit-routes.php';
 
 $app->run();
