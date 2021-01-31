@@ -32,7 +32,8 @@ INSERT INTO recipes (title, description, category, effort, created_at, updated_a
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'starter', 'low', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'appetizer', 'medium', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'main', 'high', NOW(), NOW());
-INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'dessert', NULL, NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'dessert', 'low', NOW(), NOW());
+INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'apéro', 'low', NOW(), NOW());
 
 SELECT DISTINCT effort FROM recipes ORDER BY effort ASC;
 SELECT DISTINCT category FROM recipes ORDER BY category ASC;

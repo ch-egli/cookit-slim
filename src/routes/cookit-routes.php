@@ -30,7 +30,7 @@ $app->get('/api/recipes', function( Request $request, Response $response){
               AND IFNULL(r.category, '') LIKE :categoryFilter
               AND IFNULL(r.effort, '') LIKE :effortFilter
               AND IFNULL(t.name, '') LIKE :tagsFilter
-            GROUP BY r.id";
+            GROUP BY r.id ORDER BY r.title ASC";
     // var_dump($sql);
 
     try {
