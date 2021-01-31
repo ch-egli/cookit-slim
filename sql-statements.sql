@@ -23,6 +23,15 @@ INSERT INTO tags (name, recipe_id) VALUES ('vegetarian', 4);
 INSERT INTO tags (name, recipe_id) VALUES ('vegan', 1);
 INSERT INTO tags (name, recipe_id) VALUES ('fish', 5);
 
+UPDATE tags SET name = 'végétarien' where name = 'vegetarian';
+UPDATE tags SET name = 'poisson' where name = 'fish';
+UPDATE tags SET name = 'viande' where name = 'meat';
+UPDATE tags SET name = 'asiatique' where name = 'asian';
+UPDATE tags SET name = 'légumes' where name = 'vegetable';
+UPDATE tags SET name = 'salade' where name = 'salad';
+UPDATE tags SET name = 'protéines' where name = 'high-protein';
+
+
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-1', 'description-1', 'starter', 'high', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-2', 'description-2', 'main', 'medium', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('recipe-3', 'description-3', 'dessert', 'medium', NOW(), NOW());
@@ -34,6 +43,14 @@ INSERT INTO recipes (title, description, category, effort, created_at, updated_a
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'main', 'high', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'dessert', 'low', NOW(), NOW());
 INSERT INTO recipes (title, description, category, effort, created_at, updated_at) VALUES ('dummy', 'entry used to define default categories, efforts and tags', 'apéro', 'low', NOW(), NOW());
+
+UPDATE recipes SET effort = 'facile' where effort = 'low';
+UPDATE recipes SET effort = 'moyenne' where effort = 'medium';
+UPDATE recipes SET effort = 'difficile' where effort = 'high';
+
+UPDATE recipes SET category = 'plat' where category = 'main';
+UPDATE recipes SET category = 'boisson' where category = 'drink';
+UPDATE recipes SET category = 'entrée' where category = 'starter';
 
 SELECT DISTINCT effort FROM recipes ORDER BY effort ASC;
 SELECT DISTINCT category FROM recipes ORDER BY category ASC;
