@@ -24,7 +24,18 @@ final class Authentication
         $authHeaderInclBearer = array_values($headerValueArray)[0];
         $token = substr($authHeaderInclBearer, 7);
         $client = new Google_Client(['client_id' => self::GOOGLE_CLIENT_DI]);
-        $payload = $client->verifyIdToken($token);
+
+        $payload = null;
+		try {
+			$payload = $client->verifyIdToken($token);
+		} catch (BeforeValidException $e) {
+            // The different Servertown servers are not in sync -> therefore the nbf/iat
+            // claims are sometimes rejected: "Firebase\\JWT\\BeforeValidException: Cannot handle token prior to ..."
+            // In order to avoid this, we wait some seconds before authentication
+			error_log("BeforeValidException: " . $e, 0);
+			sleep(5);
+			$payload = $client->verifyIdToken($token);
+		}
         //var_dump($payload);
         if ($payload) {
             $email = (string) $payload['email'];
